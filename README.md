@@ -52,10 +52,9 @@ RAG_Teste/
 ├── requirements.txt       # Dependências do projeto
 ├── README.md             # Documentação
 ├── src/
-│   ├── __init__.py
-│   └── pipeline.py       # Implementação do pipeline RAG
-└── assets/
-    └── demo.gif          # GIF demonstrativo da aplicação
+    ├── __init__.py
+    └── pipeline.py       # Implementação do pipeline RAG
+
 ```
 
 ## 🚀 Como Executar
@@ -134,7 +133,6 @@ O pipeline implementado segue as seguintes etapas:
    - Digite sua pergunta na caixa de texto
    - Aguarde a resposta baseada no conteúdo do PDF
 
-![Exemplo de Uso](./assets/example.png)
 
 ## 📊 Performance e Limitações
 
@@ -150,7 +148,6 @@ Contribuições são bem-vindas! Sinta-se à vontade para:
 - Sugerir novas funcionalidades
 - Melhorar a documentação
 - Submeter pull requests
-
 
 ---
 
