@@ -1,16 +1,16 @@
 import os
 import shutil
 from typing import List
-from langchain_community.document_loaders import PyPDFLoader
+from dotenv import load_dotenv
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from llama_index.core import SimpleDirectoryReader
 from langchain_community.docstore.document import Document
-import torch
-from langchain_huggingface import HuggingFacePipeline
 from transformers import pipeline
+from groq import Groq
+
+load_dotenv()
 
 class PDFQueryPipeline:
     def __init__(self, pdf_path: str):
@@ -25,15 +25,18 @@ class PDFQueryPipeline:
         self.documents = None
         self.vector_store = None
         self.qa_chain = None
-        self.llm = None
         
-        # Configurações do modelo
-        self.READER_MODEL_NAME = "google/flan-t5-base"
+        # Configurações
         self.EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+
+        self.GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+        if not self.GROQ_API_KEY:
+            raise ValueError("A chave da API Groq não foi encontrada. Verifique o arquivo .env.")
+        self.groq_client = Groq(api_key=self.GROQ_API_KEY)
 
     def load_pdf(self) -> List:
         """
-        Carrega e extrai texto do PDF usando PyPDFLoader
+        Carrega e extrai texto do PDF usando SimpleDirectoryReader
         Returns:
             Lista de documentos extraídos
         """
@@ -88,33 +91,7 @@ class PDFQueryPipeline:
         )
         
         # Cria base vetorial com FAISS
-        self.vector_store = FAISS.from_documents(
-            self.documents,
-            embeddings
-        )
-
-    def setup_llm(self):
-        """
-        Configura o modelo de linguagem do Hugging Face
-        """
-        print("⚙️ Configurando modelo de linguagem...")
-
-        # Carrega o modelo e tokenizer
-        model = AutoModelForSeq2SeqLM.from_pretrained(self.READER_MODEL_NAME)
-        tokenizer = AutoTokenizer.from_pretrained(self.READER_MODEL_NAME)
-
-        # Cria o pipeline de geração de texto
-        pipe = pipeline(
-            model=model,
-            tokenizer=tokenizer,
-            task="text2text-generation",
-            max_length=256,
-            num_beams=5,
-            repetition_penalty=2.0,
-            early_stopping=True,
-        )
-
-        self.llm = HuggingFacePipeline(pipeline=pipe)
+        self.vector_store = FAISS.from_documents(self.documents,embeddings)
 
     def generate_prompt(self, question: str, context: str) -> str:
         """
@@ -122,13 +99,13 @@ class PDFQueryPipeline:
         """
         return f"""Utilize as informações abaixo para responder à pergunta de forma clara e concisa.
 
-Contexto:
-{context}
+        Contexto:
+        {context}
 
-Pergunta:
-{question}
+        Pergunta:
+        {question}
 
-Resposta: """
+        Resposta: """
 
     def answer_question(self, question: str) -> str:
         """
@@ -138,23 +115,32 @@ Resposta: """
         Returns:
             Resposta gerada pelo modelo
         """
-        if not self.vector_store or not self.llm:
+        if not self.vector_store:
             raise ValueError("Pipeline não está totalmente configurado!")
             
         print(f"❓ Respondendo pergunta: {question}")
         
         # Recupera documentos relevantes
-        docs = self.vector_store.similarity_search(question, k=1)
+        docs = self.vector_store.similarity_search(question, k=3)
         context = "\n".join([doc.page_content for doc in docs])
         
         # Gera o prompt e obtém a resposta
         prompt = self.generate_prompt(question, context)
-        response = self.llm.invoke(prompt)
-
-        if isinstance(response, list):
-            response = response[0]['generated_text']
-        
-        return response.strip()
+        #response = self.llm.invoke(prompt)
+        try:
+            response = self.groq_client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": "Você é um assistente útil e preciso."},
+                    {"role": "user", "content": prompt}
+                ],
+                model="mixtral-8x7b-32768",
+                temperature=0.3,
+                max_tokens=1000,
+                top_p=0.9,
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            return f"Erro ao processar a resposta: {str(e)}"
 
     def run_pipeline(self):
         """
@@ -163,5 +149,4 @@ Resposta: """
         self.load_pdf()
         self.split_text()
         self.create_embeddings()
-        self.setup_llm()
         print("✅ Pipeline configurado e pronto para responder perguntas!")

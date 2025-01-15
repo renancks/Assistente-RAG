@@ -1,12 +1,13 @@
 llama-index
 langchain
 langchain-community
+langchain_huggingface
 PyPDF2
 faiss-cpu
 sentence-transformers
 openai
 transformers
-torch
 accelerate
 bitsandbytes
 streamlit
+python-dotenv
