@@ -62,8 +62,8 @@ RAG_Teste/
 
 1. **Clone o repositório**
 ```bash
-git clone https://github.com/seu-usuario/RAG_Teste.git
-cd RAG_Teste
+git clone https://github.com/renancks/Assistente-RAG.git
+cd Assistente-RAG
 ```
 
 2. **Crie um ambiente virtual**
