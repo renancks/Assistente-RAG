@@ -1,6 +1,3 @@
-Vou ajudar você a criar um README.md profissional e detalhado para seu projeto, incluindo a sugestão do GIF demonstrativo.
-
-```markdown
 # 🤖 PDF Question Answering with RAG Pipeline
 
 Este projeto implementa um sistema de Recuperação Aumentada por Geração (RAG) que permite fazer perguntas sobre o conteúdo de documentos PDF. O sistema utiliza técnicas avançadas de processamento de linguagem natural e modelos de linguagem para fornecer respostas precisas baseadas no conteúdo do documento.
