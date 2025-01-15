@@ -31,10 +31,12 @@ Este projeto foi desenvolvido como parte de um teste prático, com o objetivo de
 - **Geração de Embeddings**: Conversão do texto em representações vetoriais
 - **Resposta a Perguntas**: Capacidade de responder perguntas sobre o conteúdo do documento
 - **Interface Web**: Interface intuitiva construída com Streamlit
+- **Integração com Groq**: Utilização do modelo Mixtral-8x7B para respostas precisas
 
 ## 🛠 Tecnologias Utilizadas
 
 - **Python 3.8+**
+- **Groq**: API de modelo de linguagem de alta performance
 - **LangChain**: Framework para desenvolvimento de aplicações com LLMs
 - **LLAMA Index**: Biblioteca para indexação e consulta de documentos
 - **Sentence Transformers**: Geração de embeddings
@@ -77,7 +79,18 @@ venv\Scripts\activate     # Windows
 pip install -r requirements.txt
 ```
 
-4. **Execute a aplicação**
+4. **Configure o arquivo .env**
+```bash
+# Crie um arquivo .env na raiz do projeto
+touch .env  # Linux/Mac
+# ou
+type nul > .env  # Windows
+
+# Adicione sua chave da API Groq no arquivo .env:
+GROQ_API_KEY=sua_chave_aqui
+```
+
+5. **Execute a aplicação**
 ```bash
 streamlit run app.py
 ```
@@ -91,20 +104,25 @@ O pipeline implementado segue as seguintes etapas:
    - Preserva a estrutura e formatação do documento
 
 2. **Processamento do Texto**
-   - Divide o texto em chunks menores
-   - Mantém sobreposição para preservar contexto
+   - Chunks de 500 caracteres com 50 de sobreposição
+   - Preservação de contexto entre chunks
+   - Limpeza e normalização do texto
 
 3. **Geração de Embeddings**
-   - Utiliza modelo Sentence Transformer
-   - Cria representações vetoriais do texto
+   - Modelo all-MiniLM-L6-v2 para embeddings
+   - Dimensionalidade otimizada para performance
+   - Normalização de embeddings para melhor similaridade
 
 4. **Armazenamento e Recuperação**
    - Utiliza FAISS para indexação eficiente
    - Permite busca rápida por similaridade
+   - Cache de resultados para queries frequentes
+
 
 5. **Geração de Respostas**
-   - Recupera contexto relevante
-   - Utiliza modelo de linguagem para gerar respostas
+   - Integração com Groq API
+   - Modelo Mixtral-8x7B para respostas
+   - Sistema de prompts otimizado para contexto
 
 ## 💡 Exemplos de Uso
 
@@ -118,6 +136,13 @@ O pipeline implementado segue as seguintes etapas:
 
 ![Exemplo de Uso](./assets/example.png)
 
+## 📊 Performance e Limitações
+
+- Tamanho máximo de documento: 100 páginas
+- Tempo médio de processamento: 2-3 segundos por página
+- Uso de memória: ~500MB para documentos típicos
+- Limitações da API Groq: Conforme plano de uso
+
 ## 🤝 Contribuições
 
 Contribuições são bem-vindas! Sinta-se à vontade para:
@@ -126,11 +151,10 @@ Contribuições são bem-vindas! Sinta-se à vontade para:
 - Melhorar a documentação
 - Submeter pull requests
 
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ---
 
 Desenvolvido por [Renan Santos Ferreira](https://github.com/renancks) 👋
 ```
+
+
