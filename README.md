@@ -13,8 +13,8 @@ Este projeto implementa um sistema de Recuperação Aumentada por Geração (RAG
 - [Como Executar](#-como-executar)
 - [Pipeline RAG](#-pipeline-rag)
 - [Exemplos de Uso](#-exemplos-de-uso)
+- [Performance e Limitações](#-performance-e-limitações)
 - [Contribuições](#-contribuições)
-- [Licença](#-licença)
 
 ## 🎯 Sobre o Projeto
 
